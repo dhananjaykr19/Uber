@@ -62,4 +62,64 @@ const registerUser = asyncHandler( async(req, res) =>{
     )
 })
 
-export { registerUser };
+const genAuthToken  = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const authToken = user.generateAuthToken();
+        user.authToken = authToken;
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating referesh and access token");
+    }
+}
+
+const loginUser = asyncHandler( async(req, res) => {
+    // data from req body
+    const { email, password } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+        throw new ApiError(404, "User not found.");
+    }
+
+    // if user is not avialable 
+    if(!user){
+        throw new ApiError(404, "user not found");
+    }
+
+    // checking password 
+    const passwordMatch = await user.comparePassword(password);
+
+    // checking password match or not
+    if(!passwordMatch){
+        throw new ApiError(401, "Invalid password");
+    }
+
+    // Generate auth token
+    const token = user.generateAuthToken();
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Strict",
+    }
+
+    return res
+    .status(201)
+    .cookie("token", token, options)
+    .json(
+        new ApiResponse(
+            200, 
+            { 
+                user: { 
+                    _id: user._id, 
+                    email: user.email, 
+                    fullname: user.fullname 
+                }, 
+                token,
+            }, 
+            "User logged in successfully."
+        )
+    );
+})
+export { registerUser, loginUser };
