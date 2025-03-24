@@ -65,8 +65,11 @@ const registerUser = asyncHandler( async(req, res) =>{
 const genAuthToken  = async (userId) => {
     try {
         const user = await User.findById(userId);
-        const authToken = user.generateAuthToken();
-        user.authToken = authToken;
+        const token = user.generateAuthToken();
+        user.token = token;
+        await user.save({ validateBeforeSave : false})
+
+        return { token }
     } catch (error) {
         throw new ApiError(500, "Something went wrong while generating referesh and access token");
     }
@@ -96,7 +99,7 @@ const loginUser = asyncHandler( async(req, res) => {
     }
 
     // Generate auth token
-    const token = user.generateAuthToken();
+    const token = user.generateAuthToken(user._id);
 
     const options = {
         httpOnly: true,
@@ -122,4 +125,41 @@ const loginUser = asyncHandler( async(req, res) => {
         )
     );
 })
-export { registerUser, loginUser };
+
+const logoutUser = asyncHandler(async(req, res) => {
+    await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set : {
+                token : undefined
+            }
+        },
+        {new : true}
+    )
+
+    const options = {
+        httpOnly : true,
+        secure : true,
+    }
+
+    return res
+    .status(200)
+    .clearCookie("token", options)
+    .json(
+        new ApiResponse(200,{}, "User logged out")
+    )
+})
+
+const getProfile = asyncHandler(async(req, res) => {
+    res.status(200)
+    .json(
+        new ApiResponse(200,req.user,"")
+    )
+})
+
+export { 
+    registerUser, 
+    loginUser,
+    logoutUser,
+    getProfile,
+};
