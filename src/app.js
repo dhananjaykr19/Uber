@@ -18,4 +18,7 @@ import userRouter from "./routes/user.route.js";
 
 app.use("/api/v1/users", userRouter)
 
+import captainRouter from "./routes/captain.route.js";
+
+app.use('/api/v1/captains', captainRouter)
 export { app }
