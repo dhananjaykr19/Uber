@@ -1,4 +1,5 @@
 import { User } from "../models/user.models.js";
+import { Captain } from "../models/captain.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
@@ -23,12 +24,20 @@ export const verifyJWT = asyncHandler(async(req, res, next) =>{
         // Fetch the user and exclude the password field
         const user = await User.findById(decodedToken?._id).select("-password")
 
-        if(!user){
+        const captain = await Captain.findById(decodedToken?._id).select("-password");
+
+        if(!user && !captain){
             throw new ApiError(401,"Invalid access token")
         }
 
-        req.user = user;
-        next()
+        if(user && !captain){
+            req.user = user;
+            next()
+        }
+        else if(captain && !user){
+            req.captain = captain;
+            next()
+        }
 
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid access to token")
