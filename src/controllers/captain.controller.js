@@ -122,4 +122,29 @@ const loginCaptain = asyncHandler(async (req, res) => {
         );
 });
 
-export { registerCaptain, loginCaptain }
+const logoutCaptain = asyncHandler( async(req, res) => {
+    await Captain.findByIdAndUpdate(
+        req.captain?._id,
+        {
+            $set : {
+                token : undefined,
+            }
+        },
+        {new : true}
+    )
+
+    const options = {
+        httpOnly : true,
+        secure : true,
+        sameSite: "Strict",
+    }
+
+    res
+    .status(200)
+    .clearCookie("token", options)
+    .json(
+        new ApiResponse(200,{}, "User logged out")
+    )
+})
+
+export { registerCaptain, loginCaptain, logoutCaptain }
