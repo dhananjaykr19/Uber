@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Captain } from "../models/captain.models.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { compare } from "bcrypt";
 
 const registerCaptain = asyncHandler( async(req, res) => {
 
@@ -74,6 +75,51 @@ const registerCaptain = asyncHandler( async(req, res) => {
     );
 })
 
+const loginCaptain = asyncHandler(async (req, res) => {
+    // Data from user to login 
+    const { email, password } = req.body;
 
+    // Checking if the captain exists
+    const captain = await Captain.findOne({ email }).select("+password");
 
-export { registerCaptain }
+    if (!captain) {
+        throw new ApiError(404, "Captain not found");
+    }
+
+    // Checking if the password is correct
+    const isPassword = await captain.isPasswordCorrect(password);
+
+    if (!isPassword) {
+        throw new ApiError(401, "Invalid password");
+    }
+
+    // Generating token using captain instance, not model
+    const token = captain.generateAuthToken();
+
+    // Cookie options
+    const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "Strict",
+    };
+
+    return res
+        .status(200)
+        .cookie("token", token, options)
+        .json(
+            new ApiResponse(
+                200, 
+                { 
+                    user: { 
+                        _id: captain._id, 
+                        email: captain.email, 
+                        fullname: captain.fullname 
+                    }, 
+                    token,
+                }, 
+                "Captain logged in successfully."
+            )
+        );
+});
+
+export { registerCaptain, loginCaptain }
