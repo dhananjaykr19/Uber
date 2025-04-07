@@ -27,7 +27,7 @@ const Home = () => {
   const vehicleFoundRef = useRef(null)
   const waitingForDriverRef = useRef(null)
 
-  const submitHandler = () => {
+  const submitHandler = (e) => {
     e.preventDefault();
   }
 
