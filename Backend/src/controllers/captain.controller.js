@@ -121,7 +121,12 @@ const loginCaptain = asyncHandler(async (req, res) => {
             )
         );
 });
-
+const getCaptainProfile = asyncHandler( async(req, res) => {
+    res.status(200)
+    .json(
+        new ApiResponse(200,req.captain,"")
+    )
+})
 const logoutCaptain = asyncHandler( async(req, res) => {
     await Captain.findByIdAndUpdate(
         req.captain?._id,
@@ -147,4 +152,4 @@ const logoutCaptain = asyncHandler( async(req, res) => {
     )
 })
 
-export { registerCaptain, loginCaptain, logoutCaptain }
+export { registerCaptain, loginCaptain, logoutCaptain, getCaptainProfile }

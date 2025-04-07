@@ -1,21 +1,42 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { UserDataContext } from '../context/userContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 const UserLogin = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [userData, setUserData] = useState({})
-    const submitHandler = (e) => {
+
+    const {user, setUser} = useContext(UserDataContext);
+    const navigate = useNavigate();
+    const submitHandler = async (e) => {
         e.preventDefault();
-        setUserData({
-                email:email,
-                password:password
-        })
-       console.log(userData);
-       // console.log(email, password); 
-       setEmail('')
-       setPassword('')
+        try {
+            const userData = {
+                email : email,
+                password : password
+            }
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/v1/users/login`, userData)
+
+            if(response.status === 201){
+                const data = response.data
+                const user = data.token;
+                // console.log(user.token);
+                // console.log("User Data:", data.user); 
+                // console.log("User token:", data.token.token); 
+                setUser(data.user);
+                localStorage.setItem('token',user.token)
+                navigate('/home')
+            }
+            setEmail('')
+            setPassword('')
+        } catch (error) {
+            console.error("Error:", error.response?.data || error.message);
+        }
     }
   return (
     <div className='p-8 h-screen flex flex-col justify-between'>

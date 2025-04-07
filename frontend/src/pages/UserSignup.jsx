@@ -1,6 +1,10 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState, useContext } from 'react'
+import axios from 'axios'
+import UserContext from '../context/userContext'
+import { UserDataContext } from '../context/userContext'
+
 const UserSignup = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -8,24 +12,47 @@ const UserSignup = () => {
   const [lastname, setLastname] = useState('')
   const [userData, setUserData] = useState('')
 
+  const navigate = useNavigate()
+  const {user, setUser} = useContext(UserDataContext);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    setUserData({
-        fullname : {
-          firstname : firstname,
+    try {
+      const newUser = {
+        fullname: { 
+          firstname : firstname, 
           lastname : lastname
         },
-        email : email,
-        password : password
+        email,
+        password
+      };
+  
+      // console.log("Requesting:", `${import.meta.env.VITE_BASE_URL}/api/v1/users/register`);
+      // console.log("Data:", newUser);
+  
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/v1/users/register`,
+        newUser,
+        // { headers: { "Content-Type": "application/json" } }
+      );
+  
+      // console.log("Response:", response.data);
+      if (response.status === 201) {
+        const data = response.data
+        const user = data.token;
+        console.log(user.token);
+        setUser(data.user);
+        localStorage.setItem('token', user.token);
+        navigate('/home');
       }
-    )
-    setEmail('')
-    setPassword('')
-    setFirstname('')
-    setLastname('')
-    setPassword('')
-  }
+      setEmail('')
+      setFirstname('')
+      setLastname('')
+      setPassword('')
+    } catch (error) {
+      console.error("Error:", error.response?.data || error.message);
+    }
+  };
   return (
     <div>
       <div className='p-7 h-screen flex flex-col justify-between'>
