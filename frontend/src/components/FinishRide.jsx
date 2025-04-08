@@ -1,14 +1,15 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
-const RidePopUp = (props) => {
+const FinishRide = (props) => {
     return (
-        <div>
+        <div> 
             <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {
-                props.setRidePopupPanel(false)
+                props.setFinishRidePanel(false)
             }}><i className="text-3xl text-gray-300 ri-arrow-down-wide-fill"></i></h5>
-            <h3 className='text-2xl font-semibold mb-5'>New Ride Available! </h3>
+            <h3 className='text-2xl font-semibold mb-5'>Finish this ride </h3>
 
-            <div className='flex items-center justify-between p-3 bg-yellow-400 rounded-lg mt-4'>
+            <div className='flex items-center justify-between p-3 border-2 border-yellow-400 rounded-lg mt-4'>
                 <div className='flex items-center gap-3 '>
                     <img className='h-12 w-12 rounded-full object-cover' src="https://plus.unsplash.com/premium_photo-1669688174637-92ff26cc0a9b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHJhbmRvbSUyMHBlcnNvbnxlbnwwfHwwfHx8MA%3D%3D" alt="" />
                     <h2 className='text-lg font-medium'>Anup Kumar</h2>
@@ -39,17 +40,13 @@ const RidePopUp = (props) => {
                         </div>
                     </div>
                 </div>
-                <div className='flex mt-5 w-full items-center justify-between'>
-                    <button onClick={() => {
-                        props.setConfirmRidePopupPanel(true)
-                    }} className='mt-1 bg-green-600 text-white font-semibold p-3 px-10 rounded-lg '>Accept</button>
-                    <button onClick={() => {
-                        props.setRidePopupPanel(false)
-                    }} className=' bg-gray-300 text-gray-700 font-semibold p-3 px-10 rounded-lg'>Ignore</button>
+                <div className='mt-6 w-full'>
+                    <Link to='/captain-home' className='w-full mt-5 text-lg flex justify-center bg-green-600 text-white font-semibold p-3 rounded-lg '>Finish Ride</Link>
+
                 </div>
             </div>
         </div>
     )
 }
 
-export default RidePopUp
+export default FinishRide
